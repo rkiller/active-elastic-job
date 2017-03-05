@@ -32,28 +32,21 @@ module ActiveElasticJob
       end
 
       def call(env) #:nodoc:
-	puts "SQS Message Consumer: call(env)"
         request = ActionDispatch::Request.new env
         if enabled? && aws_sqsd?(request)
-	  puts "SQS Message Consumer: checking for request.local? and sent_from_docker_host?"
           unless request.local? || sent_from_docker_host?(request)
-	    puts "SQS Message Consumer: FORBIDDEN RESPONSE"
             return FORBIDDEN_RESPONSE
           end
 
           if periodic_task?(request)
-	    puts "SQS Message Consumer: Periodic Task"
             execute_periodic_task(request)
             return OK_RESPONSE
           elsif originates_from_gem?(request)
-	    puts "SQS Message Consumer: Originates from Gem"
             begin
               execute_job(request)
             rescue ActiveElasticJob::MessageVerifier::InvalidDigest => e
-	      puts "SQS Message Consumer: InvalidDigest => FORBIDDEN RESPONSE"
               return FORBIDDEN_RESPONSE
             end
-	    puts "SQS Message Consumer: OK RESPONSE"
             return OK_RESPONSE 
           end
         end
@@ -63,7 +56,6 @@ module ActiveElasticJob
       private
 
       def enabled?
-	puts "SQS Message Consumer: enabled environment? " + Rails.application.config.active_elastic_job.process_jobs
         Rails.application.config.active_elastic_job.process_jobs == true
       end
 
@@ -89,7 +81,6 @@ module ActiveElasticJob
         # Instead performs a simple string comparison.
         # Benchmark runs showed an performance increase of
         # up to 40%
-	puts "SQS Message Consumer: aws_sqsd?"
         current_user_agent = request.headers['User-Agent'.freeze]
         return (current_user_agent.present? &&
           current_user_agent.size >= 'aws-sqsd'.freeze.size &&
