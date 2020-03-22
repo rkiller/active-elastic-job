@@ -5,6 +5,7 @@ module ActiveElasticJob
     config.active_elastic_job.process_jobs = ENV['PROCESS_ACTIVE_ELASTIC_JOBS'] == 'true'
     puts "Processing Jobs: " + config.active_elastic_job.process_jobs.to_s
     config.active_elastic_job.aws_credentials = lambda { Aws::InstanceProfileCredentials.new }
+    config.active_elastic_job.aws_region = ENV['AWS_REGION']
     puts "Setting Credentials"
     config.active_elastic_job.periodic_tasks_route = '/periodic_tasks'.freeze
     puts "Route: " + config.active_elastic_job.periodic_tasks_route.to_s
