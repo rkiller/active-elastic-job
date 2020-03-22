@@ -8,13 +8,10 @@ module ActiveElasticJob
 
     initializer "active_elastic_job.insert_middleware" do |app|
       if app.config.active_elastic_job.secret_key_base.blank?
-	      puts "Setting Key Secret"
         app.config.active_elastic_job.secret_key_base = app.secrets[:secret_key_base]
       end
       if app.config.active_elastic_job.process_jobs == true
-	      puts "Jobs Process Flag was set!"
         if app.config.force_ssl
-		puts "Force SSL"
           app.config.middleware.insert_before(ActionDispatch::SSL,ActiveElasticJob::Rack::SqsMessageConsumer)
         else
           app.config.middleware.use(ActiveElasticJob::Rack::SqsMessageConsumer)
